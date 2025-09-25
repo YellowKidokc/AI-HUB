@@ -1,0 +1,38 @@
+from __future__ import annotations
+
+import threading
+
+from PySide6.QtWidgets import QLabel, QPushButton, QVBoxLayout
+
+from ...services.openai_client import OpenAIClient
+from ...services.prompt_manager import Prompt
+from ...services.selection import get_selection, replace_selection
+from ..tabs.base import BaseTab
+
+
+class SpellingTab(BaseTab):
+    def __init__(self, client: OpenAIClient, spelling_prompt: Prompt):
+        super().__init__()
+        self._client = client
+        self._prompt = spelling_prompt
+        self._build_ui()
+
+    def _build_ui(self) -> None:
+        layout = QVBoxLayout(self)
+        layout.addWidget(QLabel("Select text in any window, then click to fix spelling:"))
+        button = QPushButton("Fix Spelling Now", self)
+        button.clicked.connect(self._on_fix_clicked)
+        layout.addWidget(button)
+        layout.addStretch(1)
+
+    def _on_fix_clicked(self) -> None:
+        selection = get_selection().text
+        if not selection.strip():
+            return
+
+        def run() -> None:
+            output = self._client.chat(self._prompt.system or None, self._prompt.build_message(selection), self._prompt.temperature)
+            if output.strip():
+                replace_selection(output)
+
+        threading.Thread(target=run, daemon=True).start()
