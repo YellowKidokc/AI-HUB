@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=67"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ai-hub"
+version = "0.1.0"
+description = "Modular desktop AI Hub with chat, prompts, spelling, hotkeys, and hotstrings."
+authors = [{name = "AI Hub"}]
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "PySide6>=6.7",
+    "qdarktheme==2.1.0",
+    "requests>=2.31",
+    "keyboard>=0.13",
+    "pyperclip>=1.8; platform_system != 'Windows'",
+    "pywin32>=306; platform_system == 'Windows'",
+]
+
+[project.scripts]
+ai-hub = "ai_hub.app:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
